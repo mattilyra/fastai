@@ -14,10 +14,10 @@ def train_clas(prefix, cuda_id, lm_id='', clas_id=None, bs=64, cl=1, backwards=F
                use_regular_schedule=False, use_discriminative=True, last=False, chain_thaw=False,
                from_scratch=False, train_file_id=''):
     if clas_id is None: clas_id = lm_id
-    print(f'prefix {prefix}; cuda_id {cuda_id}; lm_id {lm_id}; clas_id {clas_id}; bs {bs}; cl {cl}; backwards {backwards}; '
-          f'dropmult {dropmult} unfreeze {unfreeze} startat {startat}; pretrain {pretrain}; bpe {bpe}; use_clr {use_clr};'
-          f'use_regular_schedule {use_regular_schedule}; use_discriminative {use_discriminative}; last {last};'
-          f'chain_thaw {chain_thaw}; from_scratch {from_scratch}; train_file_id {train_file_id}')
+    print(f'prefix: {prefix}\n cuda_id: {cuda_id}\n lm_id: {lm_id}\n clas_id: {clas_id}: bs {bs}\n cl: {cl}\n backwards: {backwards}\n '
+          f'dropmult: {dropmult}\n unfreeze: {unfreeze}\n startat: {startat}\n pretrain: {pretrain}\n bpe: {bpe}\n use_clr: {use_clr}\n'
+          f'use_regular_schedule: {use_regular_schedule}\n use_discriminative: {use_discriminative}\n last: {last}\n'
+          f'chain_thaw: {chain_thaw}\n from_scratch: {from_scratch}\n train_file_id: {train_file_id}')
     torch.cuda.set_device(cuda_id)
     PRE = 'bwd_' if backwards else 'fwd_'
     if bpe: PRE = 'bpe_' + PRE
@@ -36,11 +36,15 @@ def train_clas(prefix, cuda_id, lm_id='', clas_id=None, bs=64, cl=1, backwards=F
         trn_sent = np.load(f'{PATH}tmp/trn_{IDS}{train_file_id}_bwd.npy')
         val_sent = np.load(f'{PATH}tmp/val_{IDS}_bwd.npy')
     else:
+        trn_sent_path = Path(f'{PATH}tmp/trn_{IDS}{train_file_id}.npy')
+        val_sent_path = Path(f'{PATH}tmp/val_{IDS}.npy')
+        print(f'Loading train sentences {trn_sent_path}')
+        print(f'Loading val sentences {val_sent_path}')
         trn_sent = np.load(f'{PATH}tmp/trn_{IDS}{train_file_id}.npy')
         val_sent = np.load(f'{PATH}tmp/val_{IDS}.npy')
 
-    trn_lbls = np.load(f'{PATH}tmp/lbl_trn{train_file_id}.npy')
-    val_lbls = np.load(f'{PATH}tmp/lbl_val.npy')
+    trn_lbls = np.squeeze(np.load(f'{PATH}tmp/lbl_trn{train_file_id}.npy'))
+    val_lbls = np.squeeze(np.load(f'{PATH}tmp/lbl_val.npy'))
     trn_lbls -= trn_lbls.min()
     val_lbls -= val_lbls.min()
     c=int(trn_lbls.max())+1
