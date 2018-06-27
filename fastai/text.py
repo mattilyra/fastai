@@ -153,7 +153,9 @@ class LanguageModelLoader():
     allocates cuda memory in order to prevent multiple buffers from being created as the batch width grows.
     """
     def __init__(self, nums, bs, bptt, backwards=False):
-        self.bs,self.bptt,self.backwards = bs,bptt,backwards
+        self.bs = bs
+        self.bptt = bptt
+        self.backwards = backwards
         self.data = self.batchify(nums)
         self.i,self.iter = 0,0
         self.n = len(self.data)
