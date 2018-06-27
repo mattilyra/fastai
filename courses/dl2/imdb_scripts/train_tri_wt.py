@@ -15,7 +15,7 @@ def train_lm(dir_path, cuda_id, cl=1, bs=64, backwards=False, lr=3e-4, sampled=T
     IDS = 'ids'
     p = Path(dir_path)
     assert p.exists(), f'Error: {p} does not exist.'
-    bptt=70
+    bptt = 70
     em_sz,nh,nl = 400,1150,3
     opt_fn = partial(optim.Adam, betas=(0.8, 0.99))
 
@@ -25,6 +25,10 @@ def train_lm(dir_path, cuda_id, cl=1, bs=64, backwards=False, lr=3e-4, sampled=T
     else:
         trn_lm = np.load(p / f'tmp/trn_{IDS}.npy')
         val_lm = np.load(p / f'tmp/val_{IDS}.npy')
+
+    # trn_lm and val_lm are of type np.array[list]
+    # np.concatenate will flatten the lists and give one single
+    # array of token IDs
     trn_lm = np.concatenate(trn_lm)
     val_lm = np.concatenate(val_lm)
 
@@ -33,7 +37,9 @@ def train_lm(dir_path, cuda_id, cl=1, bs=64, backwards=False, lr=3e-4, sampled=T
 
     trn_dl = LanguageModelLoader(trn_lm, bs, bptt)
     val_dl = LanguageModelLoader(val_lm, bs//5 if sampled else bs, bptt)
-    md = LanguageModelData(p, 1, vs, trn_dl, val_dl, bs=bs, bptt=bptt)
+
+    # bs and bptt are ignored by LanguageModelData ????
+    md = LanguageModelData(p, 1, vs, trn_dl, val_dl)
 
     tprs = get_prs(trn_lm, vs)
     drops = np.array([0.25, 0.1, 0.2, 0.02, 0.15])*0.5
